@@ -1,4 +1,5 @@
 # KumuluzEE Ethereum
+[![Build Status](https://img.shields.io/travis/kumuluz/kumuluzee-ethereum/master.svg?style=flat)](https://travis-ci.org/kumuluz/kumuluzee-ethereum)
 
 KumuluzEE Ethereum project for seamless development of Blockchain applications, smart contracts, distributed ledger and integration with Etherum platform.
 Pre-release version enables you to easily interact with Ethereum network using web3j. Web3j documentation can be found [here](https://docs.web3j.io/).
