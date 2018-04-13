@@ -10,7 +10,7 @@ You can enable KumuluzEE Ethereum support by adding the following dependency to 
 ```xml
 <dependency>
     <groupId>com.kumuluz.ee.ethereum</groupId>
-    <artifactId>kumuluzee-ethereum</artifactId>
+    <artifactId>kumuluzee-ethereum-web3j</artifactId>
     <version>${kumuluzee-ethereum.version}</version>
 </dependency>
 ```
