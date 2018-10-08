@@ -30,7 +30,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kumuluzee.version>2.5.2</kumuluzee.version>
         <commons.version>3.6</commons.version>
-        <web3j.version>3.2.0</web3j.version>
+        <web3j.version>3.6.0</web3j.version>
     </properties>
 
     <scm>
