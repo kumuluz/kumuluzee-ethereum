@@ -28,9 +28,11 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kumuluzee.version>2.5.2</kumuluzee.version>
+        <kumuluzee.version>3.0.0</kumuluzee.version>
         <commons.version>3.6</commons.version>
         <web3j.version>3.6.0</web3j.version>
+        <jaxb-api.version>2.3.0</jaxb-api.version>
+        <javax.activation.version>1.1.1</javax.activation.version>
     </properties>
 
     <scm>
@@ -69,5 +71,28 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+
+    <profiles>
+        <profile>
+            <id>java9-modules</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                    <version>${jaxb-api.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                    <version>${javax.activation.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
 
 </project>
