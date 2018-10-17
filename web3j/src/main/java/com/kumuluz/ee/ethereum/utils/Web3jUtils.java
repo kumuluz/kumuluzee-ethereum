@@ -42,6 +42,7 @@ import java.util.logging.Logger;
  * @author Domen Gašperlin
  * @since 1.0.0
  */
+
 public class Web3jUtils {
 
     private static Web3jUtils web3jUtils;

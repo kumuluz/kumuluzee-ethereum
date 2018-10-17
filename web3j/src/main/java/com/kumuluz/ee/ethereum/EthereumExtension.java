@@ -50,7 +50,7 @@ public class EthereumExtension implements Extension {
     @Override
     public void init(KumuluzServerWrapper kumuluzServerWrapper, EeConfig eeConfig) {
         Web3jUtils.initialize();
-        log.info("Ethereum extension initialized");
+        log.info("Ethereum extension initialized!");
     }
 
 }
