@@ -20,5 +20,7 @@ public @interface EventListen {
 
     Class smartContractName();
 
+    String smartContractAdress();
+
     @Nonbinding boolean transactional() default false;
 }

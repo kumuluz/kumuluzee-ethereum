@@ -1,20 +1,38 @@
-package com.kumuluz.ee.ethereum.utils;
+/*
+ *  Copyright (c) 2014-2018 Kumuluz and/or its affiliates
+ *  and other contributors as indicated by the @author tags and
+ *  the contributor list.
+ *
+ *  Licensed under the MIT License (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  https://opensource.org/licenses/MIT
+ *
+ *  The software is provided "AS IS", WITHOUT WARRANTY OF ANY KIND, express or
+ *  implied, including but not limited to the warranties of merchantability,
+ *  fitness for a particular purpose and noninfringement. in no event shall the
+ *  authors or copyright holders be liable for any claim, damages or other
+ *  liability, whether in an action of contract, tort or otherwise, arising from,
+ *  out of or in connection with the software or the use or other dealings in the
+ *  software. See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 
-import com.kumuluz.ee.common.config.EeConfig;
-import com.kumuluz.ee.common.wrapper.KumuluzServerWrapper;
+package com.kumuluz.ee.ethereum.utils;
 import com.kumuluz.ee.ethereum.annotations.EventListen;
+import org.web3j.crypto.Credentials;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.RemoteCall;
+import org.web3j.tx.Contract;
 import rx.Observable;
-
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.BeanManager;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -26,11 +44,17 @@ public class ListenerInitializer implements EventListenerInitializer {
 
     private static final Logger log = Logger.getLogger(ListenerInitializer.class.getName());
 
+    Credentials credentials = Web3jUtils.getCredentials();
+
+
+    private Web3j web3j = Web3jUtils.getInstance().getWeb3j();
+
+
     public void after(@Observes AfterDeploymentValidation adv, BeanManager bm) {
 
 
         for (AnnotatedMethod inst : instanceList) {
-            log.fine("Found consumer method " + inst.getMethod().getName() + " in class " + inst.getMethod().getDeclaringClass());
+            log.fine("Found method " + inst.getMethod().getName() + " in class " + inst.getMethod().getDeclaringClass());
         }
 
         if (instanceList.size() > 0) {
@@ -40,62 +64,52 @@ public class ListenerInitializer implements EventListenerInitializer {
                 EventListen annotation = inst.getAnnotation();
                 Method method = inst.getMethod();
 
+                // Annotation parameters
                 String eventName = annotation.eventName();
-                Class scName = annotation.smartContractName();
+                Class scClass = annotation.smartContractName();
+                String scAddress = annotation.smartContractAdress();
 
+                // Instance of the annotated method
                 Object instance = bm.getReference(inst.getBean(), method.getDeclaringClass(), bm
                         .createCreationalContext(inst.getBean()));
-                log.severe(eventName);
-
-
 
                 try {
 
-                    Object smartContractInstance = eventName.getClass().newInstance();
+                    Method loadMethod = scClass.getMethod("load",
+                            String.class,Web3j.class,Credentials.class,Contract.GAS_PRICE.getClass(),Contract.GAS_LIMIT.getClass());
 
-                    (runMethod(smartContractInstance,eventName+"EventObservable",
-                            DefaultBlockParameterName.EARLIEST,DefaultBlockParameterName.EARLIEST.getClass(),
-                            DefaultBlockParameterName.LATEST,DefaultBlockParameterName.LATEST.getClass()))
-                            .observable().subscribe(x -> {
-                                log.info(x.toString());
-                                try {
-                                    method.invoke(method.getParameters());
-                                } catch (Exception e) {
-                                    log.severe("Error method can't be called back!");
-                                }
-                            });
+                    Contract smartContractInstance = (Contract)loadMethod.invoke(scClass,
+                            scAddress,web3j,credentials,Contract.GAS_PRICE,Contract.GAS_LIMIT);
 
-//                    ((Observable<?>)scName.getMethod(eventName+"EventObservable")
-//                            .invoke(DefaultBlockParameterName.EARLIEST,DefaultBlockParameterName.LATEST))
-//                            .asObservable().subscribe(x -> {
-//                                log.info(x.toString());
-//                                try {
-//                                    method.invoke(method.getParameters());
-//                                } catch (Exception e) {
-//                                    log.severe("Error method can't be called back!");
-//                                }
-//
-//                            }
-//                    );
+                    Class<?> params2[] = {DefaultBlockParameter.class,DefaultBlockParameter.class};
+                    Object arguments2[] = {DefaultBlockParameterName.EARLIEST,DefaultBlockParameterName.LATEST};
 
+                    Object obj2 = invokeMethond(smartContractInstance,eventName+"EventObservable",params2,arguments2);
 
+                    ((Observable<?>)obj2).subscribe(x -> {
+                        try {
+                            log.info("Calling Method " + method.getName()+"() due to "+eventName + " event.");
+                            method.invoke(instance,method.getParameters());
+                        } catch (Exception e) {
+                            log.info(e.getMessage());
+                        }
+
+                    });
 
                 } catch (Exception e) {
-                    log.severe("Method invocation for " + eventName + " has failed. Please provide valid event name!");
+                    log.severe("Method invocation for " + eventName + "event has failed. Please provide valid event name! ");
                 }
-
-
-
             }
         }
     }
 
 
-    private static RemoteCall runMethod(Object instance, String methodName, DefaultBlockParameterName argo, Class<?> parameterType,DefaultBlockParameterName argo2, Class<?> parameterType2) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = instance.getClass().getMethod(methodName, parameterType,parameterType2);
-        return (RemoteCall)method.invoke(instance, argo, argo2);
+    public static Object invokeMethond(Object obj, String methodName, Class<?> parameters[],Object arguments[]) throws Exception {
+        Class cls = obj.getClass();
+        Method m1 = cls.getDeclaredMethod(methodName,parameters);
+        Object obj2 = m1.invoke(obj, arguments);
+        return obj2;
     }
-
 
 
 }

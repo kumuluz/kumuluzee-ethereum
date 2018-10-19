@@ -23,6 +23,7 @@ package com.kumuluz.ee.ethereum.producers;
 
 import com.kumuluz.ee.ethereum.annotations.Web3jUtil;
 import com.kumuluz.ee.ethereum.utils.Web3jUtils;
+import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,4 +42,10 @@ public class Web3jProducer {
     public Web3j produceWeb3jUtil(InjectionPoint injectionPoint) {
         return Web3jUtils.getInstance().getWeb3j();
     }
+
+    @Produces
+    public Credentials produceCredentialsUtil(InjectionPoint injectionPoint) {
+        return Web3jUtils.getCredentials();
+    }
+
 }
