@@ -25,13 +25,11 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.RemoteCall;
 import org.web3j.tx.Contract;
 import rx.Observable;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.BeanManager;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
@@ -67,7 +65,7 @@ public class ListenerInitializer implements EventListenerInitializer {
                 // Annotation parameters
                 String eventName = annotation.eventName();
                 Class scClass = annotation.smartContractName();
-                String scAddress = annotation.smartContractAdress();
+                String scAddress = annotation.smartContractAddress();
 
                 // Instance of the annotated method
                 Object instance = bm.getReference(inst.getBean(), method.getDeclaringClass(), bm
@@ -84,7 +82,7 @@ public class ListenerInitializer implements EventListenerInitializer {
                     Class<?> params2[] = {DefaultBlockParameter.class,DefaultBlockParameter.class};
                     Object arguments2[] = {DefaultBlockParameterName.EARLIEST,DefaultBlockParameterName.LATEST};
 
-                    Object obj2 = invokeMethond(smartContractInstance,eventName+"EventObservable",params2,arguments2);
+                    Object obj2 = invokeMethod(smartContractInstance,eventName+"EventObservable",params2,arguments2);
 
                     ((Observable<?>)obj2).subscribe(x -> {
                         try {
@@ -97,14 +95,14 @@ public class ListenerInitializer implements EventListenerInitializer {
                     });
 
                 } catch (Exception e) {
-                    log.severe("Method invocation for " + eventName + "event has failed. Please provide valid event name! ");
+                    log.severe("Method invocation for " + eventName + " event has failed. Please provide valid event name!");
                 }
             }
         }
     }
 
 
-    public static Object invokeMethond(Object obj, String methodName, Class<?> parameters[],Object arguments[]) throws Exception {
+    public static Object invokeMethod(Object obj, String methodName, Class<?> parameters[], Object arguments[]) throws Exception {
         Class cls = obj.getClass();
         Method m1 = cls.getDeclaredMethod(methodName,parameters);
         Object obj2 = m1.invoke(obj, arguments);

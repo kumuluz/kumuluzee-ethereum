@@ -54,6 +54,7 @@ public class Web3jUtils {
         ConfigurationUtil configurationUtil = ConfigurationUtil.getInstance();
         String clientAddress = configurationUtil.get("kumuluzee.ethereum.client.address").orElse("http://localhost:8545");
         this.web3j = Web3j.build(new HttpService(clientAddress));
+
         try {
             credentials = loadWallet();
         } catch (Exception e) {
