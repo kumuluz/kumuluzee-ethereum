@@ -31,6 +31,7 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.BeanManager;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.logging.Logger;
 
 /**
@@ -70,6 +71,12 @@ public class ListenerInitializer implements EventListenerInitializer {
                 // Instance of the annotated method
                 Object instance = bm.getReference(inst.getBean(), method.getDeclaringClass(), bm
                         .createCreationalContext(inst.getBean()));
+
+
+//                Class<?>[] parameterTypes = method.getParameterTypes();
+//                Parameter[] parameters = method.getParameters();
+
+
 
                 try {
 
