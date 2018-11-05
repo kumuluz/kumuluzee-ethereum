@@ -73,8 +73,6 @@ public class ListenerInitializer implements EventListenerInitializer {
                         .createCreationalContext(inst.getBean()));
 
 
-//                Class<?>[] parameterTypes = method.getParameterTypes();
-//                Parameter[] parameters = method.getParameters();
 
 
 
@@ -94,7 +92,8 @@ public class ListenerInitializer implements EventListenerInitializer {
                     ((Observable<?>)obj2).subscribe(x -> {
                         try {
                             log.info("Calling Method " + method.getName()+"() due to "+eventName + " event.");
-                            method.invoke(instance,method.getParameters());
+
+                            method.invoke(instance,x);
                         } catch (Exception e) {
                             log.info(e.getMessage());
                         }
