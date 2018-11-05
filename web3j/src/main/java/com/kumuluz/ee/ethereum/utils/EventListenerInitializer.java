@@ -22,6 +22,7 @@
 package com.kumuluz.ee.ethereum.utils;
 
 import com.kumuluz.ee.ethereum.annotations.EventListen;
+
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.BeanManager;

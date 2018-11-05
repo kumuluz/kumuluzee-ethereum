@@ -21,7 +21,6 @@
 
 package com.kumuluz.ee.ethereum.annotations;
 
-import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -43,5 +42,4 @@ public @interface EventListen {
 
     String smartContractAddress();
 
-    @Nonbinding boolean transactional() default false;
 }

@@ -59,13 +59,18 @@ You can also inject web3j instance using CDI.
 ```
 In order to listen for events on smart contracts you can use EventListen annotation.
 This functionality requires you to connect to your own Ethereum client. 
-Cloud clients like Infura are not supported.
+Cloud clients like Infura are not supported. 
+First create a method and add EventListen annotation. 
+Then add appropriate EventResponse method parameter which will allow you to obtain details about the event.
+
 ```
-   @EventListen(eventName="transfer", smartContractName=SampleToken.class, smartContractAdress=deployedContractAddress)
-   public void openDoors () {
-        // Open doors when event is triggered on smart contract
+@EventListen(eventName="transfer", smartContractName = SampleToken.class, smartContractAddress = deployedContractAddress)
+    public void reactToEvent (SampleToken.TransferEventResponse transferEventResponse) {
+        // transferEventResponse contains event data
    }
 ```
+
+
 
 ## License
 

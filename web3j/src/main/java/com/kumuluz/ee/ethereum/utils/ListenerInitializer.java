@@ -20,18 +20,21 @@
  */
 
 package com.kumuluz.ee.ethereum.utils;
+
 import com.kumuluz.ee.ethereum.annotations.EventListen;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.tx.Contract;
+import org.web3j.tx.gas.ContractGasProvider;
+import org.web3j.tx.gas.DefaultGasProvider;
 import rx.Observable;
+
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.BeanManager;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.logging.Logger;
 
 /**
@@ -73,27 +76,34 @@ public class ListenerInitializer implements EventListenerInitializer {
                         .createCreationalContext(inst.getBean()));
 
 
-
-
-
                 try {
 
+                    ContractGasProvider contractGasProvider = new DefaultGasProvider();
+
                     Method loadMethod = scClass.getMethod("load",
-                            String.class,Web3j.class,Credentials.class,Contract.GAS_PRICE.getClass(),Contract.GAS_LIMIT.getClass());
+                            String.class, Web3j.class, Credentials.class, ContractGasProvider.class);
 
-                    Contract smartContractInstance = (Contract)loadMethod.invoke(scClass,
-                            scAddress,web3j,credentials,Contract.GAS_PRICE,Contract.GAS_LIMIT);
+                    Contract smartContractInstance = (Contract) loadMethod.invoke(scClass,
+                            scAddress, web3j, credentials, contractGasProvider);
 
-                    Class<?> params2[] = {DefaultBlockParameter.class,DefaultBlockParameter.class};
-                    Object arguments2[] = {DefaultBlockParameterName.EARLIEST,DefaultBlockParameterName.LATEST};
+                    Class<?> params2[] = {DefaultBlockParameter.class, DefaultBlockParameter.class};
+                    Object arguments2[] = {DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST};
 
-                    Object obj2 = invokeMethod(smartContractInstance,eventName+"EventObservable",params2,arguments2);
+                    Object obj2 = invokeMethod(smartContractInstance, eventName + "EventObservable", params2, arguments2);
 
-                    ((Observable<?>)obj2).subscribe(x -> {
+                    ((Observable<?>) obj2).subscribe(x -> {
                         try {
-                            log.info("Calling Method " + method.getName()+"() due to "+eventName + " event.");
 
-                            method.invoke(instance,x);
+                            log.info("Calling Method " + method.getName() + "() due to " + eventName + " event.");
+
+                            Boolean hasParameters = method.getParameters().length > 0;
+
+                            if (hasParameters) {
+                                method.invoke(instance, x);
+                            } else {
+                                method.invoke(instance, method.getParameters());
+                            }
+
                         } catch (Exception e) {
                             log.info(e.getMessage());
                         }
@@ -110,7 +120,7 @@ public class ListenerInitializer implements EventListenerInitializer {
 
     public static Object invokeMethod(Object obj, String methodName, Class<?> parameters[], Object arguments[]) throws Exception {
         Class cls = obj.getClass();
-        Method m1 = cls.getDeclaredMethod(methodName,parameters);
+        Method m1 = cls.getDeclaredMethod(methodName, parameters);
         Object obj2 = m1.invoke(obj, arguments);
         return obj2;
     }
