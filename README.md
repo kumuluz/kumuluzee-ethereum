@@ -57,6 +57,7 @@ You can also inject web3j instance using CDI.
     @Web3jUtil
     private Web3j web3j;
 ```
+## Listening to events
 In order to listen for events on smart contracts you can use EventListen annotation.
 This functionality requires you to connect to your own Ethereum client. 
 Cloud clients like Infura are not supported. 
